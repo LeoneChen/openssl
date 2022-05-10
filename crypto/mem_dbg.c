@@ -512,7 +512,7 @@ void CRYPTO_dbg_malloc(void *addr, int num, const char *file, int line,
                     m->order, (before_p & 128) ? '*' : '+', m->addr, m->num);
 #endif
             if (options & V_CRYPTO_MDEBUG_TIME)
-                m->time = time(NULL);
+                m->time = sgx_time(NULL);
             else
                 m->time = 0;
 
@@ -626,6 +626,7 @@ typedef struct mem_leak_st {
     long bytes;
 } MEM_LEAK;
 
+extern struct tm *sgx_localtime(const time_t *timep);
 static void print_leak_doall_arg(const MEM *m, MEM_LEAK *l)
 {
     char buf[1024];
@@ -644,7 +645,7 @@ static void print_leak_doall_arg(const MEM *m, MEM_LEAK *l)
     }
 
     if (options & V_CRYPTO_MDEBUG_TIME) {
-        lcl = localtime(&m->time);
+        lcl = sgx_localtime(&m->time);
 
         BIO_snprintf(bufp, BUF_REMAIN, "[%02d:%02d:%02d] ",
                      lcl->tm_hour, lcl->tm_min, lcl->tm_sec);

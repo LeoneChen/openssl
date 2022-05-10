@@ -1386,9 +1386,7 @@ __owur int SSL_CTX_use_serverinfo(SSL_CTX *ctx, const unsigned char *serverinfo,
                            size_t serverinfo_length);
 # ifndef OPENSSL_NO_STDIO
 __owur int SSL_CTX_use_serverinfo_file(SSL_CTX *ctx, const char *file);
-# endif                        /* NO_STDIO */
 
-# ifndef OPENSSL_NO_STDIO
 __owur int SSL_use_RSAPrivateKey_file(SSL *ssl, const char *file, int type);
 __owur int SSL_use_PrivateKey_file(SSL *ssl, const char *file, int type);
 __owur int SSL_use_certificate_file(SSL *ssl, const char *file, int type);

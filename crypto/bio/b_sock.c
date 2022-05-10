@@ -254,7 +254,7 @@ int BIO_sock_init(void)
          * probed at run-time with DSO_global_lookup.
          */
         if (WSAStartup(0x0202, &wsa_state) != 0) {
-            err = WSAGetLastError();
+            err = sgx_WSAGetLastError();
             SYSerr(SYS_F_WSASTARTUP, err);
             BIOerr(BIO_F_BIO_SOCK_INIT, BIO_R_WSASTARTUP);
             return (-1);

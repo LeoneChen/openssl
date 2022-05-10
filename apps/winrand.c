@@ -63,6 +63,7 @@
 #include <openssl/opensslv.h>
 #include <openssl/rand.h>
 
+#if 0
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 const char *filename;
 
@@ -143,3 +144,4 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 
     return DefWindowProc(hwnd, iMsg, wParam, lParam);
 }
+#endif

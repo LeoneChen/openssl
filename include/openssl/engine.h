@@ -68,7 +68,7 @@
 # include <openssl/opensslconf.h>
 
 # ifdef OPENSSL_NO_ENGINE
-#  error ENGINE is disabled.
+//#  error ENGINE is disabled.
 # endif
 
 # ifdef OPENSSL_USE_DEPRECATED

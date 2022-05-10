@@ -475,6 +475,8 @@ int dtls1_handle_timeout(SSL *s)
 
 static void get_current_time(struct timeval *t)
 {
+    sgx_get_current_time(t);
+    return;
 #if defined(_WIN32)
     SYSTEMTIME st;
     union {

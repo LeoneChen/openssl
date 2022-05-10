@@ -1842,6 +1842,12 @@ struct openssl_ssl_test_functions {
 
 # ifndef OPENSSL_UNIT_TEST
 
+extern time_t sgx_time(time_t *timep);
+extern sgx_get_current_time(struct timeval *t);
+extern void sgx_SetLastError(int e);
+extern void sgx_WSASetLastError(int e);
+extern int sgx_WSAGetLastError(void);
+
 void ssl_clear_cipher_ctx(SSL *s);
 int ssl_clear_bad_session(SSL *s);
 __owur CERT *ssl_cert_new(void);

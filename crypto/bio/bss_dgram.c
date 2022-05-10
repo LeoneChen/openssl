@@ -427,7 +427,7 @@ static int dgram_write(BIO *b, const char *in, int inl)
     clear_socket_error();
 
     if (data->connected)
-        ret = writesocket(b->num, in, inl);
+        ret = sgx_send(b->num, in, inl, 0);
     else {
         int peerlen = sizeof(data->peer);
 

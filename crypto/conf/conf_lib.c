@@ -90,6 +90,7 @@ int CONF_set_default_method(CONF_METHOD *meth)
     return 1;
 }
 
+#ifndef OPENSSL_NO_STDIO
 LHASH_OF(CONF_VALUE) *CONF_load(LHASH_OF(CONF_VALUE) *conf, const char *file,
                                 long *eline)
 {
@@ -112,7 +113,6 @@ LHASH_OF(CONF_VALUE) *CONF_load(LHASH_OF(CONF_VALUE) *conf, const char *file,
     return ltmp;
 }
 
-#ifndef OPENSSL_NO_STDIO
 LHASH_OF(CONF_VALUE) *CONF_load_fp(LHASH_OF(CONF_VALUE) *conf, FILE *fp,
                                    long *eline)
 {
@@ -255,6 +255,7 @@ void NCONF_free_data(CONF *conf)
     conf->meth->destroy_data(conf);
 }
 
+#ifndef OPENSSL_NO_STDIO
 int NCONF_load(CONF *conf, const char *file, long *eline)
 {
     if (conf == NULL) {
@@ -265,7 +266,6 @@ int NCONF_load(CONF *conf, const char *file, long *eline)
     return conf->meth->load(conf, file, eline);
 }
 
-#ifndef OPENSSL_NO_STDIO
 int NCONF_load_fp(CONF *conf, FILE *fp, long *eline)
 {
     BIO *btmp;

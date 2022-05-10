@@ -159,7 +159,7 @@ IMPLEMENT_dtls1_meth_func(DTLS1_VERSION,
 int dtls1_connect(SSL *s)
 {
     BUF_MEM *buf = NULL;
-    unsigned long Time = (unsigned long)time(NULL);
+    unsigned long Time = sgx_time(NULL);
     void (*cb) (const SSL *ssl, int type, int val) = NULL;
     int ret = -1;
     int new_state, state, skip = 0;
@@ -816,3 +816,5 @@ static int dtls1_get_hello_verify(SSL *s)
     s->state = SSL_ST_ERR;
     return -1;
 }
+
+//#endif

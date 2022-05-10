@@ -153,7 +153,7 @@
  * data.
  */
 
-int RAND_poll(void)
+
 {
     short int code;
     gid_t curr_gid;
@@ -243,7 +243,7 @@ int RAND_poll(void)
 int RAND_poll(void)
 {
     unsigned long l;
-    pid_t curr_pid = getpid();
+    pid_t curr_pid = sgx_getpid();
 #  if defined(DEVRANDOM) || defined(DEVRANDOM_EGD)
     unsigned char tmpbuf[ENTROPY_NEEDED];
     int n = 0;
@@ -267,8 +267,9 @@ int RAND_poll(void)
      * out of random entries.
      */
 
+#if 0		// TOR_SGX
     for (i = 0; (i < OSSL_NELEM(randomfiles)) && (n < ENTROPY_NEEDED); i++) {
-        if ((fd = open(randomfiles[i], O_RDONLY
+        if ((fd = real_sgx_open(randomfiles[i], O_RDONLY
 #   ifdef O_NONBLOCK
                        | O_NONBLOCK
 #   endif
@@ -289,8 +290,8 @@ int RAND_poll(void)
              * Avoid using same input... Used to be O_NOFOLLOW above, but
              * it's not universally appropriate...
              */
-            if (fstat(fd, st) != 0) {
-                close(fd);
+            if (real_sgx_fstat(fd, st) != 0) {
+                real_sgx_close(fd);
                 continue;
             }
             for (j = 0; j < i; j++) {
@@ -299,7 +300,7 @@ int RAND_poll(void)
                     break;
             }
             if (j < i) {
-                close(fd);
+                real_sgx_close(fd);
                 continue;
             }
 
@@ -314,7 +315,7 @@ int RAND_poll(void)
                 pset.events = POLLIN;
                 pset.revents = 0;
 
-                if (poll(&pset, 1, usec / 1000) < 0)
+                if (sgx_poll(&pset, sizeof(struct pollfd), 1, usec / 1000) < 0)
                     usec = 0;
                 else
                     try_read = (pset.revents & POLLIN) != 0;
@@ -346,7 +347,7 @@ int RAND_poll(void)
 #   endif
 
                 if (try_read) {
-                    r = read(fd, (unsigned char *)tmpbuf + n,
+                    r = real_sgx_read(fd, (unsigned char *)tmpbuf + n,
                              ENTROPY_NEEDED - n);
                     if (r > 0)
                         n += r;
@@ -366,9 +367,10 @@ int RAND_poll(void)
                     (errno == EINTR || errno == EAGAIN)) && usec != 0
                    && n < ENTROPY_NEEDED);
 
-            close(fd);
+            real_sgx_close(fd);
         }
     }
+#endif // TOR_SGX
 #  endif                        /* defined(DEVRANDOM) */
 
 #  ifdef DEVRANDOM_EGD
@@ -395,13 +397,22 @@ int RAND_poll(void)
     }
 #  endif
 
+// Workaround
+    // SGX: increase entropy using sgx_read_rand function
+   unsigned int sgx_rand_val;
+
+    for(i=0;i<50;i++) {
+        sgx_read_rand((unsigned char *)&sgx_rand_val, sizeof(unsigned int));
+        RAND_add(&sgx_rand_val, sizeof(unsigned int), 1);
+    }
+
     /* put in some default random data, we need more than just this */
     l = curr_pid;
     RAND_add(&l, sizeof(l), 0.0);
-    l = getuid();
+    l = sgx_getuid();
     RAND_add(&l, sizeof(l), 0.0);
 
-    l = time(NULL);
+    l = sgx_time(NULL);
     RAND_add(&l, sizeof(l), 0.0);
 
 #  if defined(DEVRANDOM) || defined(DEVRANDOM_EGD)

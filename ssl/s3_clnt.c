@@ -175,11 +175,11 @@ static int ssl_cipher_list_to_bytes(SSL *s, STACK_OF(SSL_CIPHER) *sk,
 int ssl3_connect(SSL *s)
 {
     BUF_MEM *buf = NULL;
-    unsigned long Time = (unsigned long)time(NULL);
+    unsigned long Time = sgx_time(NULL);
     void (*cb) (const SSL *ssl, int type, int val) = NULL;
     int ret = -1;
     int new_state, state, skip = 0;
-
+    
     RAND_add(&Time, sizeof(Time), 0);
     ERR_clear_error();
     clear_sys_error();

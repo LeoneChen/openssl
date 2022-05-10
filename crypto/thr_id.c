@@ -198,7 +198,7 @@ void CRYPTO_THREADID_current(CRYPTO_THREADID *id)
 #endif
     /* Else pick a backup */
 #if defined(OPENSSL_SYS_WIN32)
-    CRYPTO_THREADID_set_numeric(id, (unsigned long)GetCurrentThreadId());
+    CRYPTO_THREADID_set_numeric(id, (unsigned long)sgx_thread_self());
 #else
     /* For everything else, default to using the address of 'errno' */
     CRYPTO_THREADID_set_pointer(id, (void *)&errno);
@@ -236,7 +236,7 @@ unsigned long CRYPTO_thread_id(void)
 
     if (id_callback == NULL) {
 # if defined(OPENSSL_SYS_WIN32)
-        ret = (unsigned long)GetCurrentThreadId();
+        ret = (unsigned long)sgx_thread_self();
 # elif defined(GETPID_IS_MEANINGLESS)
         ret = 1L;
 # else

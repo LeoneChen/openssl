@@ -115,6 +115,7 @@
 static int seeded = 0;
 static int egdsocket = 0;
 
+#ifndef OPENSSL_NO_STDIO
 int app_RAND_load_file(const char *file, int dont_warn)
 {
     int consider_randfile = (file == NULL);
@@ -158,6 +159,7 @@ int app_RAND_load_file(const char *file, int dont_warn)
     seeded = 1;
     return 1;
 }
+#endif
 
 long app_RAND_load_files(char *name)
 {

@@ -674,13 +674,17 @@ int tls1_enc(SSL *s, int send)
                 ivlen = 0;
             if (ivlen > 1) {
                 if (rec->data != rec->input)
+                {
                     /*
                      * we can't write into the input stream: Can this ever
                      * happen?? (steve)
                      */
+#ifndef OPENSSL_NO_STDIO
                     fprintf(stderr,
                             "%s:%d: rec->data != rec->input\n",
                             __FILE__, __LINE__);
+#endif
+                }
                 else if (RAND_bytes(rec->input, ivlen) <= 0)
                     return -1;
             }

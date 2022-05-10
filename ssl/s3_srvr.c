@@ -195,7 +195,7 @@ static int ssl_check_srp_ext_ClientHello(SSL *s, int *al)
 int ssl3_accept(SSL *s)
 {
     BUF_MEM *buf;
-    unsigned long alg_k, Time = (unsigned long)time(NULL);
+    unsigned long alg_k, Time = sgx_time(NULL);
     void (*cb) (const SSL *ssl, int type, int val) = NULL;
     int ret = -1;
     int new_state, state, skip = 0;
@@ -1246,14 +1246,18 @@ int ssl3_get_client_hello(SSL *s)
             id = s->session->cipher->id;
 
 #ifdef CIPHER_DEBUG
+#ifndef OPENSSL_NO_STDIO
             fprintf(stderr, "client sent %d ciphers\n",
                     sk_SSL_CIPHER_num(ciphers));
+            #endif
 #endif
             for (i = 0; i < sk_SSL_CIPHER_num(ciphers); i++) {
                 c = sk_SSL_CIPHER_value(ciphers, i);
 #ifdef CIPHER_DEBUG
+#ifndef OPENSSL_NO_STDIO
                 fprintf(stderr, "client [%2d of %2d]:%s\n",
                         i, sk_SSL_CIPHER_num(ciphers), SSL_CIPHER_get_name(c));
+                #endif
 #endif
                 if (c->id == id) {
                     j = 1;
@@ -2082,7 +2086,9 @@ int ssl3_send_server_key_exchange(SSL *s)
                     p += 2;
                 }
 #ifdef SSL_DEBUG
+#ifndef OPENSSL_NO_STDIO
                 fprintf(stderr, "Using hash %s\n", EVP_MD_name(md));
+                #endif
 #endif
                 EVP_SignInit_ex(&md_ctx, md, NULL);
                 EVP_SignUpdate(&md_ctx, &(s->s3->client_random[0]),
@@ -2894,7 +2900,9 @@ int ssl3_get_cert_verify(SSL *s)
                 goto f_err;
             }
 #ifdef SSL_DEBUG
+#ifndef OPENSSL_NO_STDIO
             fprintf(stderr, "USING TLSv1.2 HASH %s\n", EVP_MD_name(md));
+#endif
 #endif
         }
         if (!PACKET_get_net_2(&pkt, &len)) {
@@ -2925,8 +2933,10 @@ int ssl3_get_cert_verify(SSL *s)
             goto f_err;
         }
 #ifdef SSL_DEBUG
+#ifndef OPENSSL_NO_STDIO
         fprintf(stderr, "Using TLS 1.2 with client verify alg %s\n",
                 EVP_MD_name(md));
+#endif
 #endif
         if (!EVP_VerifyInit_ex(&mctx, md, NULL)
             || !EVP_VerifyUpdate(&mctx, hdata, hdatalen)) {
@@ -2991,7 +3001,9 @@ int ssl3_get_cert_verify(SSL *s)
         EVP_PKEY_CTX *pctx = EVP_PKEY_CTX_new(pkey, NULL);
         EVP_PKEY_verify_init(pctx);
         if (len != 64) {
+#ifndef OPENSSL_NO_STDIO
             fprintf(stderr, "GOST signature length is %d", len);
+#endif
         }
         for (idx = 0; idx < 64; idx++) {
             signature[63 - idx] = data[idx];
@@ -3539,7 +3551,9 @@ STACK_OF(SSL_CIPHER) *ssl_bytes_to_cipher_list(SSL *s, unsigned char *p,
             s->s3->send_connection_binding = 1;
             p += n;
 #ifdef OPENSSL_RI_DEBUG
+#ifndef OPENSSL_NO_STDIO
             fprintf(stderr, "SCSV received by server\n");
+#endif
 #endif
             continue;
         }

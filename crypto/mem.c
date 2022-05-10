@@ -438,7 +438,7 @@ char *CRYPTO_strdup(const char *str, const char *file, int line)
     if (ret == NULL)
         return NULL;
 
-    strcpy(ret, str);
+    strncpy(ret, str, sizeof(str));
     return ret;
 }
 

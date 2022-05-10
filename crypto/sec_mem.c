@@ -14,7 +14,8 @@
 #include <e_os.h>
 
 #if defined(OPENSSL_SYS_LINUX) || defined(OPENSSL_SYS_UNIX)
-# define IMPLEMENTED
+// For SGX, remove mmap/munmap
+//# define IMPLEMENTED
 # include <stdlib.h>
 # include <string.h>
 # include <assert.h>

@@ -143,7 +143,7 @@ static int bnrand(int pseudorand, BIGNUM *rnd, int bits, int top, int bottom)
     }
 
     /* make a random number and set the top and bottom bits */
-    time(&tim);
+    sgx_time(&tim);
     RAND_add(&tim, sizeof(tim), 0.0);
 
     if (pseudorand) {

@@ -146,12 +146,12 @@ int RAND_query_egd_bytes(const char *path, unsigned char *buf, int bytes)
         return (-1);
     BUF_strlcpy(addr.sun_path, path, sizeof addr.sun_path);
     len = offsetof(struct sockaddr_un, sun_path) + strlen(path);
-    fd = socket(AF_UNIX, SOCK_STREAM, 0);
+    fd = sgx_socket(AF_UNIX, SOCK_STREAM, 0);
     if (fd == -1)
         return (-1);
     success = 0;
     while (!success) {
-        if (connect(fd, (struct sockaddr *)&addr, len) == 0)
+        if (sgx_connect(fd, (struct sockaddr *)&addr, len) == 0)
             success = 1;
         else {
             switch (errno) {
@@ -185,7 +185,7 @@ int RAND_query_egd_bytes(const char *path, unsigned char *buf, int bytes)
         egdbuf[1] = bytes < 255 ? bytes : 255;
         numbytes = 0;
         while (numbytes != 2) {
-            num = write(fd, egdbuf + numbytes, 2 - numbytes);
+            num = sgx_write(fd, egdbuf + numbytes, 2 - numbytes);
             if (num >= 0)
                 numbytes += num;
             else {
@@ -206,7 +206,7 @@ int RAND_query_egd_bytes(const char *path, unsigned char *buf, int bytes)
         }
         numbytes = 0;
         while (numbytes != 1) {
-            num = read(fd, egdbuf, 1);
+            num = sgx_read(fd, egdbuf, 1);
             if (num == 0)
                 goto err;       /* descriptor closed */
             else if (num > 0)
@@ -235,7 +235,7 @@ int RAND_query_egd_bytes(const char *path, unsigned char *buf, int bytes)
             retrievebuf = tempbuf;
         numbytes = 0;
         while (numbytes != egdbuf[0]) {
-            num = read(fd, retrievebuf + numbytes, egdbuf[0] - numbytes);
+            num = sgx_read(fd, retrievebuf + numbytes, egdbuf[0] - numbytes);
             if (num == 0)
                 goto err;       /* descriptor closed */
             else if (num > 0)
@@ -263,7 +263,7 @@ int RAND_query_egd_bytes(const char *path, unsigned char *buf, int bytes)
     }
  err:
     if (fd != -1)
-        close(fd);
+        sgx_close(fd);
     return (ret);
 }
 

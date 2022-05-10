@@ -372,20 +372,14 @@ static int ssleay_rand_bytes(unsigned char *buf, int num, int pseudo)
     unsigned char local_md[MD_DIGEST_LENGTH];
     EVP_MD_CTX m;
 #ifndef GETPID_IS_MEANINGLESS
-    pid_t curr_pid = getpid();
+    pid_t curr_pid = sgx_getpid();
 #endif
-    time_t curr_time = time(NULL);
+    time_t curr_time = sgx_time(NULL);
     int do_stir_pool = 0;
 /* time value for various platforms */
 #ifdef OPENSSL_SYS_WIN32
     FILETIME tv;
-# ifdef _WIN32_WCE
-    SYSTEMTIME t;
-    GetSystemTime(&t);
-    SystemTimeToFileTime(&t, &tv);
-# else
-    GetSystemTimeAsFileTime(&tv);
-# endif
+    sgx_GetSystemTimeAsFileTime(&tv);
 #elif defined(OPENSSL_SYS_VXWORKS)
     struct timespec tv;
     clock_gettime(CLOCK_REALTIME, &ts);
@@ -394,7 +388,8 @@ static int ssleay_rand_bytes(unsigned char *buf, int num, int pseudo)
     tv = OPENSSL_rdtsc();
 #else
     struct timeval tv;
-    gettimeofday(&tv, NULL);
+//    gettimeofday(&tv, NULL);
+    sgx_gettimeofday(&tv);
 #endif
 
 #ifdef PREDICT

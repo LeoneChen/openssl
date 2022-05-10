@@ -80,6 +80,7 @@
 # endif                         /* ndef VMS_GMTIME_OK */
 #endif
 
+extern struct tm *sgx_gmtime(const time_t *timep);
 struct tm *OPENSSL_gmtime(const time_t *timer, struct tm *result)
 {
     struct tm *ts = NULL;
@@ -89,10 +90,10 @@ struct tm *OPENSSL_gmtime(const time_t *timer, struct tm *result)
      * should return &data, but doesn't on some systems, so we don't even
      * look at the return value
      */
-    gmtime_r(timer, result);
-    ts = result;
+    ts = sgx_gmtime(timer);
+
 #elif !defined(OPENSSL_SYS_VMS) || defined(VMS_GMTIME_OK)
-    ts = gmtime(timer);
+    ts = sgx_gmtime(timer);
     if (ts == NULL)
         return NULL;
 

@@ -116,6 +116,7 @@
 
 #include "internal/cryptlib.h"
 #include <openssl/safestack.h>
+#include <assert.h>
 
 #if defined(OPENSSL_SYS_WIN32)
 static double SSLeay_MSVC5_hack = 0.0; /* and for VC1.5 */
@@ -133,6 +134,7 @@ unsigned int *OPENSSL_ia32cap_loc(void)
 }
 
 # if defined(OPENSSL_CPUID_OBJ) && !defined(OPENSSL_NO_ASM) && !defined(I386_ONLY)
+#include <stdio.h>
 #  define OPENSSL_CPUID_SETUP
 typedef uint64_t IA32CAP;
 void OPENSSL_cpuid_setup(void)
@@ -260,91 +262,17 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 #  define alloca _alloca
 # endif
 
-# if defined(_WIN32_WINNT) && _WIN32_WINNT>=0x0333
-int OPENSSL_isservice(void)
-{
-    HWINSTA h;
-    DWORD len;
-    WCHAR *name;
-    static union {
-        void *p;
-        int (*f) (void);
-    } _OPENSSL_isservice = {
-        NULL
-    };
-
-    if (_OPENSSL_isservice.p == NULL) {
-        HANDLE h = GetModuleHandle(NULL);
-        if (h != NULL)
-            _OPENSSL_isservice.p = GetProcAddress(h, "_OPENSSL_isservice");
-        if (_OPENSSL_isservice.p == NULL)
-            _OPENSSL_isservice.p = (void *)-1;
-    }
-
-    if (_OPENSSL_isservice.p != (void *)-1)
-        return (*_OPENSSL_isservice.f) ();
-
-    h = GetProcessWindowStation();
-    if (h == NULL)
-        return -1;
-
-    if (GetUserObjectInformationW(h, UOI_NAME, NULL, 0, &len) ||
-        GetLastError() != ERROR_INSUFFICIENT_BUFFER)
-        return -1;
-
-    if (len > 512)
-        return -1;              /* paranoia */
-    len++, len &= ~1;           /* paranoia */
-    name = (WCHAR *)alloca(len + sizeof(WCHAR));
-    if (!GetUserObjectInformationW(h, UOI_NAME, name, len, &len))
-        return -1;
-
-    len++, len &= ~1;           /* paranoia */
-    name[len / sizeof(WCHAR)] = L'\0'; /* paranoia */
-#  if 1
-    /*
-     * This doesn't cover "interactive" services [working with real
-     * WinSta0's] nor programs started non-interactively by Task Scheduler
-     * [those are working with SAWinSta].
-     */
-    if (wcsstr(name, L"Service-0x"))
-        return 1;
-#  else
-    /* This covers all non-interactive programs such as services. */
-    if (!wcsstr(name, L"WinSta0"))
-        return 1;
-#  endif
-    else
-        return 0;
-}
-# else
 int OPENSSL_isservice(void)
 {
     return 0;
 }
-# endif
 
 void OPENSSL_showfatal(const char *fmta, ...)
 {
+#ifndef OPENSSL_NO_STDIO
     va_list ap;
     TCHAR buf[256];
     const TCHAR *fmt;
-# ifdef STD_ERROR_HANDLE        /* what a dirty trick! */
-    HANDLE h;
-
-    if ((h = GetStdHandle(STD_ERROR_HANDLE)) != NULL &&
-        GetFileType(h) != FILE_TYPE_UNKNOWN) {
-        /* must be console application */
-        int len;
-        DWORD out;
-
-        va_start(ap, fmta);
-        len = _vsnprintf((char *)buf, sizeof(buf), fmta, ap);
-        WriteFile(h, buf, len < 0 ? sizeof(buf) : (DWORD) len, &out, NULL);
-        va_end(ap);
-        return;
-    }
-# endif
 
     if (sizeof(TCHAR) == sizeof(char))
         fmt = (const TCHAR *)fmta;
@@ -406,25 +334,19 @@ void OPENSSL_showfatal(const char *fmta, ...)
     buf[OSSL_NELEM(buf) - 1] = _T('\0');
     va_end(ap);
 
-# if defined(_WIN32_WINNT) && _WIN32_WINNT>=0x0333
-    /* this -------------v--- guards NT-specific calls */
-    if (check_winnt() && OPENSSL_isservice() > 0) {
-        HANDLE h = RegisterEventSource(0, _T("OPENSSL"));
-        const TCHAR *pmsg = buf;
-        ReportEvent(h, EVENTLOG_ERROR_TYPE, 0, 0, 0, 1, 0, &pmsg, 0);
-        DeregisterEventSource(h);
-    } else
-# endif
         MessageBox(NULL, buf, _T("OpenSSL: FATAL"), MB_OK | MB_ICONSTOP);
+#endif
 }
 #else
 void OPENSSL_showfatal(const char *fmta, ...)
 {
+#ifndef OPENSSL_NO_STDIO
     va_list ap;
 
     va_start(ap, fmta);
     vfprintf(stderr, fmta, ap);
     va_end(ap);
+#endif
 }
 
 int OPENSSL_isservice(void)
@@ -435,9 +357,11 @@ int OPENSSL_isservice(void)
 
 void OpenSSLDie(const char *file, int line, const char *assertion)
 {
+#ifndef OPENSSL_NO_STDIO
     OPENSSL_showfatal
         ("%s(%d): OpenSSL internal error, assertion failed: %s\n", file, line,
          assertion);
+#endif
 #if !defined(_WIN32) || defined(__CYGWIN__)
     abort();
 #else
@@ -445,15 +369,10 @@ void OpenSSLDie(const char *file, int line, const char *assertion)
      * Win32 abort() customarily shows a dialog, but we just did that...
      */
 # if !defined(_WIN32_WCE)
-    raise(SIGABRT);
+//    raise(SIGABRT);
 # endif
-    _exit(3);
+    return;
 #endif
-}
-
-void *OPENSSL_stderr(void)
-{
-    return stderr;
 }
 
 int CRYPTO_memcmp(const void *in_a, const void *in_b, size_t len)

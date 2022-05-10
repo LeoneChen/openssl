@@ -130,7 +130,7 @@ FIPSCANLIB=
 
 BASEADDR=
 
-DIRS=   crypto ssl engines apps test tools
+DIRS=   crypto ssl engines tools
 ENGDIRS= ccgost
 SHLIBDIRS= crypto ssl
 INSTALL_SUBS= engines apps tools

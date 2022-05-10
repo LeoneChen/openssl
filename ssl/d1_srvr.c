@@ -160,7 +160,7 @@ IMPLEMENT_dtls1_meth_func(DTLS1_VERSION,
 int dtls1_accept(SSL *s)
 {
     BUF_MEM *buf;
-    unsigned long Time = (unsigned long)time(NULL);
+    unsigned long Time = sgx_time(NULL);
     void (*cb) (const SSL *ssl, int type, int val) = NULL;
     unsigned long alg_k;
     int ret = -1;
@@ -915,3 +915,5 @@ int dtls1_send_hello_verify_request(SSL *s)
     /* s->state = DTLS1_ST_SW_HELLO_VERIFY_REQUEST_B */
     return (dtls1_do_write(s, SSL3_RT_HANDSHAKE));
 }
+
+//#endif

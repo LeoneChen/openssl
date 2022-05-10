@@ -101,6 +101,7 @@ int EVP_read_pw_string_min(char *buf, int min, int len, const char *prompt,
     char buff[BUFSIZ];
     UI *ui;
 
+#ifndef OPENSSL_NO_STDIO
     if ((prompt == NULL) && (prompt_string[0] != '\0'))
         prompt = prompt_string;
     ui = UI_new();
@@ -112,6 +113,7 @@ int EVP_read_pw_string_min(char *buf, int min, int len, const char *prompt,
                              buf);
     ret = UI_process(ui);
     UI_free(ui);
+#endif
     OPENSSL_cleanse(buff, BUFSIZ);
     return ret;
 }

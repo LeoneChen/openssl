@@ -137,7 +137,7 @@ static int sock_read(BIO *b, char *out, int outl)
 
     if (out != NULL) {
         clear_socket_error();
-        ret = readsocket(b->num, out, outl);
+        ret = sgx_recv(b->num, out, outl, 0);
         BIO_clear_retry_flags(b);
         if (ret <= 0) {
             if (BIO_sock_should_retry(ret))
@@ -152,7 +152,7 @@ static int sock_write(BIO *b, const char *in, int inl)
     int ret;
 
     clear_socket_error();
-    ret = writesocket(b->num, in, inl);
+    ret = sgx_send(b->num, in, inl, 0);
     BIO_clear_retry_flags(b);
     if (ret <= 0) {
         if (BIO_sock_should_retry(ret))

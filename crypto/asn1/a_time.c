@@ -174,7 +174,7 @@ static int asn1_time_to_tm(struct tm *tm, const ASN1_TIME *t)
 {
     if (t == NULL) {
         time_t now_t;
-        time(&now_t);
+        sgx_time(&now_t);
         if (OPENSSL_gmtime(&now_t, tm))
             return 1;
         return 0;

@@ -609,7 +609,7 @@ static int check_chain_extensions(X509_STORE_CTX *ctx)
          * A hack to keep people who don't want to modify their software
          * happy
          */
-        if (getenv("OPENSSL_ALLOW_PROXY_CERTS"))
+        if (sgx_getenv("OPENSSL_ALLOW_PROXY_CERTS"))
             allow_proxy_certs = 1;
         purpose = ctx->param->purpose;
     }
@@ -1943,7 +1943,7 @@ ASN1_TIME *X509_time_adj_ex(ASN1_TIME *s,
     if (in_tm)
         t = *in_tm;
     else
-        time(&t);
+        sgx_time(&t);
 
     if (s && !(s->flags & ASN1_STRING_FLAG_MSTRING)) {
         if (s->type == V_ASN1_UTCTIME)

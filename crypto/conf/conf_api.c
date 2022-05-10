@@ -141,7 +141,7 @@ char *_CONF_get_string(const CONF *conf, const char *section,
             if (v != NULL)
                 return (v->value);
             if (strcmp(section, "ENV") == 0) {
-                p = getenv(name);
+                p = sgx_getenv(name);
                 if (p != NULL)
                     return (p);
             }
@@ -154,7 +154,7 @@ char *_CONF_get_string(const CONF *conf, const char *section,
         else
             return (NULL);
     } else
-        return (getenv(name));
+        return (sgx_getenv(name));
 }
 
 static unsigned long conf_value_hash(const CONF_VALUE *v)

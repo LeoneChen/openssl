@@ -345,7 +345,7 @@ SSL_SESSION *d2i_SSL_SESSION(SSL_SESSION **a, const unsigned char **pp,
     if (as->time != 0)
         ret->time = as->time;
     else
-        ret->time = (unsigned long)time(NULL);
+        ret->time = (unsigned long)sgx_time(NULL);
 
     if (as->timeout != 0)
         ret->timeout = as->timeout;

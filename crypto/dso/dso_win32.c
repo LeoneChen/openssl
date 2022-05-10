@@ -99,7 +99,7 @@ static HINSTANCE LoadLibraryA(LPCSTR lpLibFileName)
     fnamw = (WCHAR *)alloca(len_0 * sizeof(WCHAR));
 #  endif
     if (fnamw == NULL) {
-        SetLastError(ERROR_NOT_ENOUGH_MEMORY);
+        sgx_SetLastError(ERROR_NOT_ENOUGH_MEMORY);
         return NULL;
     }
 #  if defined(_WIN32_WCE) && _WIN32_WCE>=101

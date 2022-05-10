@@ -18,7 +18,9 @@ static TCHAR msg[128];
 
 static void unimplemented(void)
 {
+#ifndef OPENSSL_NO_STDIO    
     OPENSSL_showfatal(sizeof(TCHAR) == sizeof(char) ? "%s\n" : "%S\n", msg);
+#endif    
     ExitProcess(1);
 }
 

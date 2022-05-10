@@ -202,7 +202,7 @@ static int ssl_sock_init(void)
         wsa_init_done = 1;
         memset(&wsa_state, 0, sizeof(wsa_state));
         if (WSAStartup(0x0101, &wsa_state) != 0) {
-            err = WSAGetLastError();
+            err = sgx_WSAGetLastError();
             BIO_printf(bio_err, "unable to start WINSOCK, error code=%d\n",
                        err);
             return (0);
@@ -530,7 +530,7 @@ static int do_accept(int acc_sock, int *sock, char **host)
     if (ret == INVALID_SOCKET) {
 # if defined(OPENSSL_SYS_WINDOWS) || (defined(OPENSSL_SYS_NETWARE) && !defined(NETWARE_BSDSOCK))
         int i;
-        i = WSAGetLastError();
+        i = sgx_WSAGetLastError();
         BIO_printf(bio_err, "accept error %d\n", i);
 # else
         if (errno == EINTR) {

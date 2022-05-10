@@ -2325,7 +2325,7 @@ void ssl_update_cache(SSL *s, int mode)
         if ((((mode & SSL_SESS_CACHE_CLIENT)
               ? s->session_ctx->stats.sess_connect_good
               : s->session_ctx->stats.sess_accept_good) & 0xff) == 0xff) {
-            SSL_CTX_flush_sessions(s->session_ctx, (unsigned long)time(NULL));
+            SSL_CTX_flush_sessions(s->session_ctx, (unsigned long)sgx_time(NULL));
         }
     }
 }

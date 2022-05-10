@@ -378,6 +378,7 @@ static int cmd_VerifyMode(SSL_CONF_CTX *cctx, const char *value)
     return CONF_parse_list(value, ',', 1, ssl_set_option_list, cctx);
 }
 
+#ifndef OPENSSL_NO_STDIO
 static int cmd_Certificate(SSL_CONF_CTX *cctx, const char *value)
 {
     int rv = 1;
@@ -506,6 +507,7 @@ static int cmd_DHParameters(SSL_CONF_CTX *cctx, const char *value)
     return rv > 0;
 }
 #endif
+#endif /* !OPENSSL_NO_STDIO */
 typedef struct {
     int (*cmd) (SSL_CONF_CTX *cctx, const char *value);
     const char *str_file;
@@ -554,6 +556,7 @@ static const ssl_conf_cmd_tbl ssl_conf_cmds[] = {
     SSL_CONF_CMD_STRING(Protocol, NULL, 0),
     SSL_CONF_CMD_STRING(Options, NULL, 0),
     SSL_CONF_CMD_STRING(VerifyMode, NULL, 0),
+#ifndef OPENSSL_NO_STDIO
     SSL_CONF_CMD(Certificate, "cert", SSL_CONF_FLAG_CERTIFICATE,
                  SSL_CONF_TYPE_FILE),
     SSL_CONF_CMD(PrivateKey, "key", SSL_CONF_FLAG_CERTIFICATE,
@@ -580,6 +583,7 @@ static const ssl_conf_cmd_tbl ssl_conf_cmds[] = {
                  SSL_CONF_FLAG_SERVER | SSL_CONF_FLAG_CERTIFICATE,
                  SSL_CONF_TYPE_FILE)
 #endif
+#endif /* !OPENSSL_NO_STDIO */
 };
 
 /* Supported switches: must match order of switches in ssl_conf_cmds */
@@ -808,7 +812,9 @@ int SSL_CONF_CTX_finish(SSL_CONF_CTX *cctx)
              * If missing private key try to load one from certificate file
              */
             if (p && !c->pkeys[i].privatekey) {
+#ifndef OPENSSL_NO_STDIO
                 if (!cmd_PrivateKey(cctx, p))
+#endif
                     return 0;
             }
         }

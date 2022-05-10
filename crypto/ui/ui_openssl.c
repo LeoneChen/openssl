@@ -302,21 +302,21 @@ static int noecho_fgets(char *buf, int size, FILE *tty);
 #endif
 static int read_string_inner(UI *ui, UI_STRING *uis, int echo, int strip_nl);
 
-static int read_string(UI *ui, UI_STRING *uis);
-static int write_string(UI *ui, UI_STRING *uis);
+// static int read_string(UI *ui, UI_STRING *uis);
+// static int write_string(UI *ui, UI_STRING *uis);
 
-static int open_console(UI *ui);
+// static int open_console(UI *ui);
 static int echo_console(UI *ui);
 static int noecho_console(UI *ui);
-static int close_console(UI *ui);
+// static int close_console(UI *ui);
 
 static UI_METHOD ui_openssl = {
     "OpenSSL default user interface",
-    open_console,
-    write_string,
+    NULL,
+    NULL,
     NULL,                       /* No flusher is needed for command lines */
-    read_string,
-    close_console,
+    NULL,
+    NULL,
     NULL
 };
 
@@ -326,6 +326,7 @@ UI_METHOD *UI_OpenSSL(void)
     return &ui_openssl;
 }
 
+#if 0
 /*
  * The following function makes sure that info and error strings are printed
  * before any prompt.
@@ -343,7 +344,9 @@ static int write_string(UI *ui, UI_STRING *uis)
     }
     return 1;
 }
+#endif
 
+#if 0
 static int read_string(UI *ui, UI_STRING *uis)
 {
     int ok = 0;
@@ -380,6 +383,7 @@ static int read_string(UI *ui, UI_STRING *uis)
     }
     return 1;
 }
+#endif
 
 #if !defined(OPENSSL_SYS_WINCE)
 /* Internal functions to read a string without echoing */
@@ -460,6 +464,7 @@ static int read_string_inner(UI *ui, UI_STRING *uis, int echo, int strip_nl)
     return ok;
 }
 
+#if 0
 /* Internal functions to open, handle and close a channel to the console.  */
 static int open_console(UI *ui)
 {
@@ -512,6 +517,7 @@ static int open_console(UI *ui)
 #endif
     return 1;
 }
+#endif
 
 static int noecho_console(UI *ui)
 {
@@ -561,6 +567,7 @@ static int echo_console(UI *ui)
     return 1;
 }
 
+#if 0
 static int close_console(UI *ui)
 {
     if (tty_in != stdin)
@@ -574,6 +581,7 @@ static int close_console(UI *ui)
 
     return 1;
 }
+#endif
 
 #if !defined(OPENSSL_SYS_WINCE)
 /* Internal functions to handle signals and act on them */

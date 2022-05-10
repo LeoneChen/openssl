@@ -309,8 +309,9 @@ void CRYPTO_destroy_dynlockid(int i)
         --pointer->references;
 #ifdef REF_CHECK
         if (pointer->references < 0) {
-            fprintf(stderr,
-                    "CRYPTO_destroy_dynlockid, bad reference count\n");
+#ifndef OPENSSL_NO_STDIO
+            OPENSSL_showfatal("CRYPTO_destroy_dynlockid, bad reference count\n");
+#endif
             abort();
         } else
 #endif

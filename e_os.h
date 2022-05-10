@@ -119,7 +119,7 @@ extern "C" {
 # ifdef WIN32
 #  define NO_SYS_UN_H
 #  define get_last_sys_error()    GetLastError()
-#  define clear_sys_error()       SetLastError(0)
+#  define clear_sys_error()       sgx_SetLastError(0)
 #  if !defined(WINNT)
 #   define WIN_CONSOLE_BUG
 #  endif
@@ -129,8 +129,8 @@ extern "C" {
 # endif
 
 # if defined(WINDOWS)
-#  define get_last_socket_error() WSAGetLastError()
-#  define clear_socket_error()    WSASetLastError(0)
+#  define get_last_socket_error() sgx_WSAGetLastError()
+#  define clear_socket_error()    sgx_WSASetLastError(0)
 #  define readsocket(s,b,n)       recv((s),(b),(n),0)
 #  define writesocket(s,b,n)      send((s),(b),(n),0)
 # elif defined(__DJGPP__)
@@ -144,21 +144,21 @@ extern "C" {
 #  define get_last_socket_error() errno
 #  define clear_socket_error()    errno=0
 #  define ioctlsocket(a,b,c)      ioctl(a,b,c)
-#  define closesocket(s)          close(s)
+#  define closesocket(s)          sgx_close(s)
 #  define readsocket(s,b,n)       recv((s),(b),(n),0)
 #  define writesocket(s,b,n)      send((s),(b),(n),0)
 # elif defined(OPENSSL_SYS_VXWORKS)
 #  define get_last_socket_error() errno
 #  define clear_socket_error()    errno=0
 #  define ioctlsocket(a,b,c)          ioctl((a),(b),(int)(c))
-#  define closesocket(s)              close(s)
+#  define closesocket(s)              sgx_close(s)
 #  define readsocket(s,b,n)           read((s),(b),(n))
 #  define writesocket(s,b,n)          write((s),(char *)(b),(n))
 # elif defined(OPENSSL_SYS_NETWARE)
 #  if defined(NETWARE_BSDSOCK)
 #   define get_last_socket_error() errno
 #   define clear_socket_error()    errno=0
-#   define closesocket(s)          close(s)
+#   define closesocket(s)          sgx_close(s)
 #   define ioctlsocket(a,b,c)      ioctl(a,b,c)
 #   if defined(NETWARE_LIBC)
 #    define readsocket(s,b,n)       recv((s),(b),(n),0)
@@ -168,8 +168,8 @@ extern "C" {
 #    define writesocket(s,b,n)      send((s),(char*)(b),(n),0)
 #   endif
 #  else
-#   define get_last_socket_error() WSAGetLastError()
-#   define clear_socket_error()    WSASetLastError(0)
+#   define get_last_socket_error() sgx_WSAGetLastError()
+#   define clear_socket_error()    sgx_WSASetLastError(0)
 #   define readsocket(s,b,n)               recv((s),(b),(n),0)
 #   define writesocket(s,b,n)              send((s),(b),(n),0)
 #  endif
@@ -177,7 +177,7 @@ extern "C" {
 #  define get_last_socket_error() errno
 #  define clear_socket_error()    errno=0
 #  define ioctlsocket(a,b,c)      ioctl(a,b,c)
-#  define closesocket(s)          close(s)
+#  define closesocket(s)          sgx_close(s)
 #  define readsocket(s,b,n)       read((s),(b),(n))
 #  define writesocket(s,b,n)      write((s),(b),(n))
 # endif
@@ -478,8 +478,8 @@ struct servent *PASCAL getservbyname(const char *, const char *);
 #    endif
 #    define SSLeay_Write(a,b,c)       send((a),(b),(c),0)
 #    define SSLeay_Read(a,b,c)        recv((a),(b),(c),0)
-#    define SHUTDOWN(fd)              { shutdown((fd),0); closesocket(fd); }
-#    define SHUTDOWN2(fd)             { shutdown((fd),2); closesocket(fd); }
+#    define SHUTDOWN(fd)              { sgx_shutdown((fd),0); closesocket(fd); }
+#    define SHUTDOWN2(fd)             { sgx_shutdown((fd),2); closesocket(fd); }
 #   else
 #    define SSLeay_Write(a,b,c)       write_s(a,b,c,0)
 #    define SSLeay_Read(a,b,c)        read_s(a,b,c)
@@ -507,8 +507,8 @@ struct servent *PASCAL getservbyname(const char *, const char *);
 #   endif
 #   define SSLeay_Write(a,b,c)   send((a),(b),(c),0)
 #   define SSLeay_Read(a,b,c) recv((a),(b),(c),0)
-#   define SHUTDOWN(fd)    { shutdown((fd),0); closesocket(fd); }
-#   define SHUTDOWN2(fd)      { shutdown((fd),2); closesocket(fd); }
+#   define SHUTDOWN(fd)    { sgx_shutdown((fd),0); closesocket(fd); }
+#   define SHUTDOWN2(fd)      { sgx_shutdown((fd),2); closesocket(fd); }
 
 #  else
 
@@ -573,8 +573,8 @@ struct servent *PASCAL getservbyname(const char *, const char *);
 
 #   define SSLeay_Read(a,b,c)     read((a),(b),(c))
 #   define SSLeay_Write(a,b,c)    write((a),(b),(c))
-#   define SHUTDOWN(fd)    { shutdown((fd),0); closesocket((fd)); }
-#   define SHUTDOWN2(fd)   { shutdown((fd),2); closesocket((fd)); }
+#   define SHUTDOWN(fd)    { sgx_shutdown((fd),0); closesocket((fd)); }
+#   define SHUTDOWN2(fd)   { sgx_shutdown((fd),2); closesocket((fd)); }
 #   ifndef INVALID_SOCKET
 #    define INVALID_SOCKET      (-1)
 #   endif                       /* INVALID_SOCKET */
@@ -620,11 +620,12 @@ extern int sys_nerr;
 /***********************************************/
 
 # if defined(OPENSSL_SYS_WINDOWS)
-#  define strcasecmp _stricmp
-#  define strncasecmp _strnicmp
+#  include "internal/o_str.h"
+#  define strcasecmp sgx_strcasecmp
+#  define strncasecmp sgx_strncasecmp
 # elif defined(OPENSSL_SYS_VMS)
 /* VMS below version 7.0 doesn't have strcasecmp() */
-#  include "internal/o_str.h"
+// #  include "internal/o_str.h"
 #  define strcasecmp OPENSSL_strcasecmp
 #  define strncasecmp OPENSSL_strncasecmp
 #  define OPENSSL_IMPLEMENTS_strncasecmp

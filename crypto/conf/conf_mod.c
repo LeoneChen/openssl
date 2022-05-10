@@ -159,6 +159,7 @@ int CONF_modules_load(const CONF *cnf, const char *appname,
 
 }
 
+#ifndef OPENSSL_NO_STDIO
 int CONF_modules_load_file(const char *filename, const char *appname,
                            unsigned long flags)
 {
@@ -194,6 +195,7 @@ int CONF_modules_load_file(const char *filename, const char *appname,
 
     return ret;
 }
+#endif
 
 static int module_run(const CONF *cnf, char *name, char *value,
                       unsigned long flags)
@@ -524,7 +526,7 @@ char *CONF_get1_default_config_file(void)
     char *file;
     int len;
 
-    file = getenv("OPENSSL_CONF");
+    file = sgx_getenv("OPENSSL_CONF");
     if (file)
         return BUF_strdup(file);
 
